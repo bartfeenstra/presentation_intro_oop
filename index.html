@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js - The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+		<style>
+			.reveal {
+				font-size: 30px;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>An introduction to object-oriented programming (OOP)</h1>
+					<p>DrupalCamp London 2015</p>
+				</section>
+				<section>
+					<section>
+						<h1>What is object-oriented programming?</h1>
+						<p>The form of programming that uses instances (objects) of classes (predefined data types) to structure (group) information and functionality.</p>
+					</section>
+					<section>
+						<h1>Glossary</h1>
+						<dl>
+							<dt>Class</dt>
+							<dd>A predefined type (blueprint) of complex data.</dd>
+							<dt>Object</dt>
+							<dd>An instance of a class; a single unit of complex data.</dd>
+							<dt>Property</dt>
+							<dd>A variable that belongs to a class or object.</dd>
+							<dt>Method</dt>
+							<dd>A function that belongs to a class or object.</dd>
+						</dl>
+					</section>
+					<section>
+						<h1>State</h1>
+						<p>Objects have state (internal configuration) which can be changed.</p>
+						<p class ="fragment">Most, if not all usages of static variables in Drupal 7 have been replaced with object properties in Drupal 8.</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>Interfaces</h1>
+						<p>Interfaces define <strong>what</strong> objects must be able to do,</p>
+						<p class="fragment">but do <strong>not</strong> define <strong>how</strong> they must do these things.</p>
+						<p class="fragment">They are contracts that must be fulfilled.</p>
+							<pre class="fragment"><code>
+&lt;?php
+
+interface FooInterface {
+
+	public function doFoo($foo);
+
+}
+
+interface FooMultipleInterface extends FooInterface {
+
+	public function doFooMultiple(array $foos);
+
+}
+							</code></pre>
+					</section>
+					<section>
+						<h1>Classes</h1>
+						<p>Classes define what objects must do <strong>and</strong> how to do this.</p>
+						<p class="fragment">In good design, they implement interfaces.</p>
+						<p class="fragment">Classes can be instantiated into objects.</p>
+						<pre class="fragment"><code>
+&lt;?php
+
+class Foo implements FooInterface {
+
+	public function doFoo($foo) {
+		return sprintf('Hello %s!', $foo);
+	}
+}
+
+$foo = new Foo();
+$foo->doFoo('world');
+// returns "Hello world!"
+						</code></pre>
+					</section>
+					<section>
+						<h1>Abstract classes</h1>
+						<p>Abstract classes provide partial implementations, but cannot be instantiated.</p>
+						<pre class="fragment"><code>
+&lt;?php
+
+abstract class AbstractFoo implements FooMultipleInterface {
+
+	public function doFoo($foo) {
+		return sprintf('Hello %s!', $foo);
+	}
+}
+
+class Foo extends AbstractFoo implements FooMultipleInterface {
+
+	public function doFooMultiple(array $foos) {
+		$greetings = [];
+		foreach ($foos as $foo) {
+			$greetings[] = sprintf('Hello %s!', $foo);
+		}
+
+		return implode(' ', $greetings);
+	}
+}
+
+$foo = new Foo();
+$foo->doFooMultiple(['world', 'Drupal']);
+// returns "Hello world!" and "Hello Drupal!"
+						</code></pre>
+					</section>
+					<section>
+						<h1>Traits</h1>
+						<p>Traits provide re-usable implementations that can reduce boilerplate code.</p>
+						<p class="fragment">Classes can use traits.</p>
+						<pre class="fragment"><code>
+&lt;?php
+
+trait FooTrait {
+
+	public function doFoo($foo) {
+		return sprintf('Hello %s!', $foo);
+	}
+
+}
+
+class Foo implements FooInterface {
+
+	use FooTrait;
+
+}
+
+$foo = new Foo();
+$foo->doFoo('world');
+// returns "Hello world!"
+						</code></pre>
+					</section>
+					<section>
+						<h1>Inheritance</h1>
+						<p>Interfaces, traits, and classes can be extended.</p>
+						<p class="fragment">Child classes can access methods from their parent classes.</p>
+						<pre class="fragment"><code>
+&lt;?php
+
+class Foo implements FooInterface {
+
+	public function doFoo($foo) {
+		return sprintf('Hello %s!', $foo);
+	}
+
+}
+
+class PoliteFoo extends Foo {
+
+	public function doFoo($foo) {
+		$message = parent::doFoo($foo);
+		$message .= ' How are you?';
+
+		return $message;
+	}
+
+}
+
+$foo = new Foo();
+$foo->doFoo('world');
+// returns "Hello world! How are you?"
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<h1>$this</h1>
+					<p>$this points to the current object.</p>
+					<pre class="fragment"><code>
+&lt;?php
+
+abstract class AbstractFoo implements FooMultipleInterface {
+
+	public function doFoo($foo) {
+		return sprintf('Hello %s!', $foo);
+	}
+}
+
+class Foo extends AbstractFoo implements FooMultipleInterface {
+
+	public function doFooMultiple(array $foos) {
+		$greetings = [];
+		foreach ($foos as $foo) {
+			$greetings[] = $this->doFoo($foo);
+		}
+
+		return implode(' ', $greetings);
+	}
+}
+
+$foo = new Foo();
+$foo->doFooMultiple(['world', 'Drupal']);
+// returns "Hello world!" and "Hello Drupal!"
+					</code></pre>
+				</section>
+				<section>
+					<h1>Visibility</h1>
+					<p>Developers control which methods can be called from outside the class.</p>
+					<dl class="fragment">
+						<dt>public</dt>
+						<dd>Can be called from anywhere.</dd>
+						<dt>protected</dt>
+						<dd>Can be called only from within the class or any child class.</dd>
+						<dt>private</dt>
+						<dd>Can only be called from within the same class.</dd>
+					</dl>
+					<pre class="fragment"><code>
+&lt;?php
+
+class Bar {
+
+	protected function doBar() {}
+
+}
+
+$bar = new Bar();
+$bar->doBar();
+// $bar->doBar() causes an error, because we call a protected method from outside the class.
+					</code></pre>
+				</section>
+				<section>
+					<h1>Checking an object's type</h1>
+					<p class="fragment">When accepted as a function parameter (type hinting).</p>
+					<p class="fragment">In a block of code (instanceof).</p>
+					<pre class="fragment"><code>
+&lt;?php
+
+function foo(FooInterface $foo) {
+	// Here we only know $foo implements FooInterface.
+	if ($foo instanceof FooMultipleInterface) {
+		// Now we know $foo implements FooMultipleInterface too.
+	}
+}
+					</code></pre>
+				</section>
+				<section>
+					<h1>Autoloading using PSR-4</h1>
+					<p class="fragment">Industry standard with several available autoloaders.</p>
+					<p class="fragment">Class names map to file names.</p>
+					<p class="fragment">Namespaces map to directory names.</p>
+					<p class="fragment">Much faster and less frustrating than the Drupal 7 registry.</p>
+					<p class="fragment">Example: <code>\Drupal\payment\Entity\PaymentInterface</code> maps to <code>./src/Entity/PaymentInterface.php</code>.</p>
+				</section>
+				<section>
+					<h1>Benefits</h1>
+					<ul>
+						<li class="fragment">Classes objects are faster than arrays (<a href="https://gist.github.com/nikic/5015323">https://gist.github.com/nikic/5015323</a>).</li>
+						<li class="fragment">Interfaces and classes are documentation.</li>
+						<li class="fragment">IDEs use interfaces and classes for code completion.</li>
+						<li class="fragment">Easier and faster coding. Lower chance of bugs.</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Conclusion</h1>
+					<h2>OOP makes you a better developer.</h2>
+					<p class="fragment">Find this presentation at <a href="https://github.com/bartfeenstra/presentation_intro_oop">https://github.com/bartfeenstra/presentation_intro_oop</a>.</p>
+					<p class="fragment">Find me at <a href="http://twitter.com/bartfeenstra">@BartFeenstra</a> and <a href="http://mynameisbart.com">http://mynameisbart.com</a>.</p>
+					<h2 class="fragment">Do you have any questions?</h2>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
